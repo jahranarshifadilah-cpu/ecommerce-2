@@ -74,3 +74,34 @@ Route::middleware(['auth', 'admin'])
         // - PUT    /admin/products/{id}     → update  (admin.products.update)
         // - DELETE /admin/products/{id}     → destroy (admin.products.destroy)
 });
+
+
+
+use App\Http\Controllers\Auth\GoogleController;
+
+// ================================================
+// GOOGLE OAUTH ROUTES
+// ================================================
+// Route ini diakses oleh browser, tidak perlu middleware auth
+// ================================================
+
+Route::controller(GoogleController::class)->group(function () {
+    // ================================================
+    // ROUTE 1: REDIRECT KE GOOGLE
+    // ================================================
+    // URL: /auth/google
+    // Dipanggil saat user klik tombol "Login dengan Google"
+    // ================================================
+    Route::get('/auth/google', 'redirect')
+        ->name('auth.google');
+
+    // ================================================
+    // ROUTE 2: CALLBACK DARI GOOGLE
+    // ================================================
+    // URL: /auth/google/callback
+    // Dipanggil oleh Google setelah user klik "Allow"
+    // URL ini HARUS sama dengan yang didaftarkan di Google Console!
+    // ================================================
+    Route::get('/auth/google/callback', 'callback')
+        ->name('auth.google.callback');
+});
