@@ -29,25 +29,7 @@ class Category extends Model
      * Method boot() dipanggil saat model di-initialize.
      * Kita gunakan untuk auto-generate slug.
      */
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Event "creating" dipanggil sebelum model disimpan (baru)
-        static::creating(function ($category) {
-            if (empty($category->slug)) {
-                $category->slug = Str::slug($category->name);
-            }
-        });
-
-        // Event "updating" dipanggil sebelum model diupdate
-        static::updating(function ($category) {
-            // Jika nama berubah, update slug juga
-            if ($category->isDirty('name')) {
-                $category->slug = Str::slug($category->name);
-            }
-        });
-    }
+    
 
     // ==================== RELATIONSHIPS ====================
 
@@ -100,5 +82,40 @@ class Category extends Model
             return asset('storage/' . $this->image);
         }
         return asset('images/category-placeholder.png');
+    }
+
+    /**
+     * Accessor: Menghitung jumlah produk aktif.
+     * $category->products_count
+     */
+    public function getProductsCountAttribute(): int
+    {
+        // Tips: Untuk performa, sebaiknya gunakan withCount() di controller
+        // daripada menghitung manual di sini jika datanya banyak.
+        return $this->activeProducts()->count();
+    }
+
+    // ==================== BOOT (MODEL EVENTS) ====================
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Event: creating (Sebelum data disimpan ke DB)
+        // Kita gunakan untuk auto-generate slug dari name.
+        static::creating(function ($category) {
+            if (empty($category->slug)) {
+                // Contoh: "Elektronik & Gadget" -> "elektronik-gadget"
+                $category->slug = Str::slug($category->name);
+            }
+        });
+
+        // Event: updating (Sebelum data yang diedit disimpan)
+        // Cek jika nama berubah, update juga slug-nya.
+        static::updating(function ($category) {
+            if ($category->isDirty('name')) { // isDirty() = apakah nilai berubah?
+                $category->slug = Str::slug($category->name);
+            }
+        });
     }
 }
