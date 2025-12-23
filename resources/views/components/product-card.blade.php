@@ -28,6 +28,10 @@
             @else
             <p class="fw-bold text-primary mb-0">{{ $product->formatted_price }}</p>
             @endif
+            <button onclick="toggleWishlist({{ $product->id }})"
+        class="wishlist-btn-{{ $product->id }} btn btn-light btn-sm rounded-circle p-2 transition">
+    <i class="bi {{ Auth::check() && Auth::user()->hasInWishlist($product) ? 'bi-heart-fill text-danger' : 'bi-heart text-secondary' }} fs-5"></i>
+</button>
         </div>
     </div>
 </div>
