@@ -1,75 +1,95 @@
+{{-- ================================================
+     FILE: resources/views/cart/index.blade.php
+     FUNGSI: Halaman keranjang belanja (UI Updated)
+     ================================================ --}}
+
 @extends('layouts.app')
 
 @section('title', 'Keranjang Belanja')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-4">
-        <i class="bi bi-cart3 me-2"></i>Keranjang Belanja
-    </h2>
+<div class="container py-5">
+    {{-- Header dengan Breadcrumb sederhana --}}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('catalog.index') }}" class="text-decoration-none">Katalog</a></li>
+            <li class="breadcrumb-item active">Keranjang Belanja</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold m-0">
+            <i class="bi bi-cart3 me-2 text-primary"></i>Keranjang Belanja
+        </h2>
+        @if($cart && $cart->items->count())
+            <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill">
+                {{ $cart->items->count() }} Produk Berbeda
+            </span>
+        @endif
+    </div>
 
     @if($cart && $cart->items->count())
-        <div class="row">
+        <div class="row g-4">
             {{-- Cart Items --}}
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="bg-light text-muted small uppercase">
                                 <tr>
-                                    <th style="width: 50%">Produk</th>
-                                    <th class="text-center">Harga</th>
-                                    <th class="text-center">Jumlah</th>
-                                    <th class="text-end">Subtotal</th>
-                                    <th></th>
+                                    <th class="ps-4 py-3 border-0">PRODUK</th>
+                                    <th class="text-center py-3 border-0">HARGA</th>
+                                    <th class="text-center py-3 border-0" style="width: 150px;">JUMLAH</th>
+                                    <th class="text-end py-3 border-0">SUBTOTAL</th>
+                                    <th class="pe-4 py-3 border-0"></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="border-top-0">
                                 @foreach($cart->items as $item)
-                                    @php
-                                        // Hitung harga setelah diskon
-                                        $price = $item->product->discount_price ?? $item->product->price;
-                                        $subtotal = $price * $item->quantity;
-                                    @endphp
                                     <tr>
-                                        <td>
+                                        <td class="ps-4 py-4">
                                             <div class="d-flex align-items-center">
-                                                <img src="{{ $item->product->image_url }}" class="rounded me-3" width="60" height="60" style="object-fit: cover;">
-                                                <div>
-                                                    <a href="" class="text-decoration-none text-dark fw-medium">
-                                                        {{ Str::limit($item->product->name, 40) }}
+                                                <div class="position-relative">
+                                                    <img src="{{ $item->product->image_url }}" 
+                                                         class="rounded-3 border shadow-sm" 
+                                                         width="80" height="80" 
+                                                         style="object-fit: cover;">
+                                                </div>
+                                                <div class="ms-3">
+                                                    <a href="{{ route('catalog.show', $item->product->slug) }}" 
+                                                       class="text-decoration-none text-dark fw-bold mb-1 d-block hover-primary">
+                                                        {{ Str::limit($item->product->name, 45) }}
                                                     </a>
-                                                    <div class="small text-muted">
+                                                    <span class="badge bg-light text-muted fw-normal">
                                                         {{ $item->product->category->name }}
-                                                    </div>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-center align-middle">
-                                            Rp {{ number_format($price, 0, ',', '.') }}
+                                        <td class="text-center text-muted">
+                                            {{ $item->product->formatted_price }}
                                         </td>
-                                        <td class="text-center align-middle">
-                                            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="d-inline-flex align-items-center">
+                                        <td class="text-center">
+                                            <form action="{{ route('cart.update', $item->id) }}" method="POST" class="mx-auto" style="max-width: 100px;">
                                                 @csrf
                                                 @method('PATCH')
-                                                <input type="number" name="quantity"
-                                                       value="{{ $item->quantity }}"
-                                                       min="1" max="{{ $item->product->stock }}"
-                                                       class="form-control form-control-sm text-center"
-                                                       style="width: 70px;"
+                                                <input type="number" name="quantity" 
+                                                       value="{{ $item->quantity }}" 
+                                                       min="1" max="{{ $item->product->stock }}" 
+                                                       class="form-control form-control-sm border-2 text-center rounded-pill" 
                                                        onchange="this.form.submit()">
                                             </form>
                                         </td>
-                                        <td class="text-end align-middle fw-bold">
-                                            Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                        <td class="text-end fw-bold text-dark">
+                                            Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                         </td>
-                                        <td class="align-middle">
+                                        <td class="pe-4 text-end">
                                             <form action="{{ route('cart.remove', $item->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                <button type="submit" class="btn btn-link text-danger p-0" 
                                                         onclick="return confirm('Hapus item ini?')">
-                                                    <i class="bi bi-trash"></i>
+                                                    <i class="bi bi-trash3 fs-5"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -78,55 +98,74 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="card-footer bg-white border-0 p-4">
+                         <a href="{{ route('catalog.index') }}" class="text-decoration-none small fw-bold">
+                            <i class="bi bi-arrow-left me-1"></i> Kembali Belanja
+                        </a>
+                    </div>
                 </div>
             </div>
 
             {{-- Order Summary --}}
             <div class="col-lg-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Ringkasan Belanja</h5>
-                    </div>
+                <div class="card border-0 shadow-sm rounded-4 p-2">
                     <div class="card-body">
-                        @php
-                            $totalQuantity = $cart->items->sum('quantity');
-                            $totalPrice = $cart->items->sum(function($item){
-                                $price = $item->product->discount_price ?? $item->product->price;
-                                return $price * $item->quantity;
-                            });
-                        @endphp
-
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Total Harga ({{ $totalQuantity }} barang)</span>
-                            <span>Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
-                        </div>
-                        <hr>
+                        <h5 class="fw-bold mb-4">Ringkasan Pesanan</h5>
+                        
                         <div class="d-flex justify-content-between mb-3">
-                            <span class="fw-bold">Total</span>
-                            <span class="fw-bold text-primary fs-5">
-                                Rp {{ number_format($totalPrice, 0, ',', '.') }}
+                            <span class="text-muted">Subtotal ({{ $cart->items->sum('quantity') }} unit)</span>
+                            <span class="fw-medium">Rp {{ number_format($cart->items->sum('subtotal'), 0, ',', '.') }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Biaya Pengiriman</span>
+                            <span class="text-success fw-medium">Gratis</span>
+                        </div>
+                        
+                        <hr class="my-4 border-dashed">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="h6 mb-0 fw-bold">Total Harga</span>
+                            <span class="h4 mb-0 fw-bold text-primary">
+                                Rp {{ number_format($cart->items->sum('subtotal'), 0, ',', '.') }}
                             </span>
                         </div>
-                        <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100 btn-lg">
-                            <i class="bi bi-credit-card me-2"></i>Checkout
+
+                        <a href="{{ route('checkout.index') }}" class="btn btn-primary w-100 py-3 rounded-3 fw-bold mb-3 shadow-sm">
+                            Checkout <i class="bi bi-arrow-right ms-2"></i>
                         </a>
-                        <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary w-100 mt-2">
-                            <i class="bi bi-arrow-left me-2"></i>Lanjut Belanja
-                        </a>
+                        
+                        <div class="d-flex align-items-center justify-content-center small text-muted">
+                            <i class="bi bi-shield-check me-2 text-success"></i> Pembayaran Aman & Terenkripsi
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     @else
         {{-- Empty Cart --}}
-        <div class="text-center py-5">
-            <i class="bi bi-cart-x display-1 text-muted"></i>
-            <h4 class="mt-3">Keranjang Kosong</h4>
-            <p class="text-muted">Belum ada produk di keranjang belanja kamu</p>
-            <a href="{{ route('catalog.index') }}" class="btn btn-primary">
-                <i class="bi bi-bag me-2"></i>Mulai Belanja
-            </a>
+        <div class="card border-0 shadow-sm rounded-4 py-5 mt-4">
+            <div class="card-body text-center py-5">
+                <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                    <i class="bi bi-cart-x display-4 text-muted"></i>
+                </div>
+                <h4 class="fw-bold">Wah, keranjangmu masih kosong!</h4>
+                <p class="text-muted mb-4">Yuk, cari produk favoritmu dan masukkan ke keranjang sekarang.</p>
+                <a href="{{ route('catalog.index') }}" class="btn btn-primary px-5 py-2 rounded-pill fw-bold">
+                    Mulai Belanja
+                </a>
+            </div>
         </div>
     @endif
 </div>
+
+<style>
+    /* CSS tambahan untuk mempercantik */
+    .bg-soft-primary { background-color: #e7f1ff; }
+    .border-dashed { border-style: dashed !important; }
+    .hover-primary:hover { color: #0d6efd !important; }
+    .rounded-4 { border-radius: 1rem !important; }
+    .table thead th { font-size: 0.75rem; letter-spacing: 0.05rem; }
+    .form-control:focus { box-shadow: none; border-color: #0d6efd; }
+</style>
 @endsection
