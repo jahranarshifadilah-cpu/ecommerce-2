@@ -23,7 +23,9 @@
       <!--  Header End -->
         
         {{-- Content --}}
+      <div class="container-fluid">
         @yield('content')
+      </div>
       {{-- end content --}}
     </div>
   </div>

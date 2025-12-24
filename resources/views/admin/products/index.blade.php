@@ -5,7 +5,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="h3 text-gray-800">Daftar Produk</h2>
-    <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+    <a href="{{ route('admin.products.create') }}" class="btn btn-primary mt-5">
         <i class="bi bi-plus-lg"></i> Tambah Produk
     </a>
 </div>
