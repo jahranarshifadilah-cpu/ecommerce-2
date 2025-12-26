@@ -1,5 +1,5 @@
 {{-- resources/views/checkout/index.blade.php --}}
-@extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
 <div class="bg-light min-vh-100 py-5">

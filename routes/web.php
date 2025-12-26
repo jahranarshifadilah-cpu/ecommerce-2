@@ -16,6 +16,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\PaymentController;
+
 
 
 // ================================================
@@ -60,7 +62,16 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
+
+        Route::get('/orders/{order}/pay', [PaymentController::class, 'show'])
+        ->name('orders.pay');
+    Route::get('/orders/{order}/success', [PaymentController::class, 'success'])
+        ->name('orders.success');
+    Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])
+        ->name('orders.pending');
 });
+
+
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
@@ -189,3 +200,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
+
+
