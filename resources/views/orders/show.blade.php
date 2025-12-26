@@ -1,6 +1,6 @@
 {{-- resources/views/orders/show.blade.php --}}
 
-@extends('layouts.admin') <!-- Asumsi layout admin sudah menggunakan Bootstrap 5 -->
+@extends('layouts.app') <!-- Asumsi layout admin sudah menggunakan Bootstrap 5 -->
 
 @section('content')
     <div class="container py-5">
