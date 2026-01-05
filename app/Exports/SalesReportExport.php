@@ -22,7 +22,7 @@ class SalesReportExport implements FromQuery, WithHeadings, WithMapping, WithSty
     /**
      * 1. Query Data
      */
-    public function query()
+    public function query(): \Illuminate\Database\Eloquent\Builder
     {
         return Order::query()
             ->with(['user', 'items'])
@@ -52,7 +52,7 @@ class SalesReportExport implements FromQuery, WithHeadings, WithMapping, WithSty
      * 3. Mapping Data per Baris
      * Mengatur data apa yang masuk ke kolom mana.
      */
-    public function map($order): array
+    public function map(Order $order): array
     {
         return [
             $order->order_number,
@@ -60,7 +60,7 @@ class SalesReportExport implements FromQuery, WithHeadings, WithMapping, WithSty
             $order->user->name,
             $order->user->email,
             $order->items->sum('quantity'),
-            $order->total_amount, // Biarkan angka murni agar bisa dijumlah di Excel
+            (float) $order->total_amount, // Cast ke float agar Excel mengenali sebagai angka
             ucfirst($order->status),
         ];
     }
@@ -68,7 +68,7 @@ class SalesReportExport implements FromQuery, WithHeadings, WithMapping, WithSty
     /**
      * 4. Styling (Opsional: Bold Header)
      */
-    public function styles(Worksheet $sheet)
+    public function styles()
     {
         return [
             // Style baris pertama (Header) jadi Bold

@@ -36,8 +36,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile/password', 'updatePassword')->name('profile.password.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
         Route::delete('/profile/avatar', 'deleteAvatar')->name('profile.avatar.destroy');
-
-
     });
 
     // Cart & Wishlist
@@ -66,8 +64,8 @@ Route::middleware('auth')->group(function () {
 
 // --- Admin Routes ---
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-                Route::get('/reports/sales', [\App\Http\Controllers\Admin\ReportController::class, 'sales'])->name('reports.sales');
-                Route::get('/reports/sales/export', [\App\Http\Controllers\Admin\ReportController::class, 'exportSales'])->name('reports.sales.export');
+    Route::get('/reports/sales', [\App\Http\Controllers\Admin\ReportController::class, 'sales'])->name('reports.sales');
+    Route::get('/reports/sales/export', [\App\Http\Controllers\Admin\ReportController::class, 'exportSales'])->name('reports.sales.export');
 
     // Dashboard - Menggunakan method 'index' sesuai controller di atas
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -86,8 +84,8 @@ Route::controller(GoogleController::class)->group(function () {
     Route::get('/auth/google/callback', 'callback')->name('auth.google.callback');
 });
 
-// Batasi 5 request per menit
-Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
+// Batasi 2 request per 2 menit
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:2,2');
 
 // --- Webhook ---
 Route::post('midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');

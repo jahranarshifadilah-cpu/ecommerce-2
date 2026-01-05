@@ -41,7 +41,7 @@ class OrderController extends Controller
      * Update status pesanan (misal: kirim barang)
      * Handle otomatis pengembalian stok jika status diubah jadi Cancelled.
      */
-    public function updateStatus(Request $request, Order $order)
+    public function update(Request $request, Order $order)
     {
         // Validasi status yang dikirim form
         $request->validate([
