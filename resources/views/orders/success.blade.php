@@ -1,11 +1,9 @@
-
-<!-- resources/views/orders/success.blade.php -->
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Pembayaran Berhasil</h1>
-    <p>Terima kasih, pesanan Anda telah berhasil dibayar.</p>
-    <a href="{{ route('orders.index') }}" class="btn btn-primary">Kembali ke Pesanan</a>
+<div class="container py-5 text-center">
+    <h1 class="h3 mb-4 text-success fw-bold">Pembayaran Berhasil!</h1>
+    <p class="mb-4">Terima kasih, pesanan Anda telah berhasil dibayar dan akan segera diproses.</p>
+    <a href="{{ route('orders.show', $order) }}" class="btn btn-primary">Lihat Detail Pesanan</a>
 </div>
 @endsection
