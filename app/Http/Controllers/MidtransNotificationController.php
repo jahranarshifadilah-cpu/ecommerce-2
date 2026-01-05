@@ -7,13 +7,10 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Events\OrderPaidEvent;
 
 class MidtransNotificationController extends Controller
 {
-    /**
-     * Handle incoming webhook notification from Midtrans.
-     * URL: POST /midtrans/notification
-     */
     /**
      * Handle incoming webhook notification from Midtrans.
      * URL: POST /midtrans/notification

@@ -37,21 +37,32 @@
               </a>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="products" aria-expanded="false">
+              <a class="sidebar-link" href="{{ route('admin.products.index') }}" aria-expanded="false">
                 <span>
                   <i class="ti ti-alert-circle"></i>
                 </span>
                 <span class="hide-menu">Produk</span>
               </a>
             </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="./ui-card.html" aria-expanded="false">
-                <span>
-                  <i class="ti ti-cards"></i>
-                </span>
-                <span class="hide-menu">Pesanan</span>
-              </a>
-            </li>
+             <li class="sidebar-item">
+                    <a class="sidebar-link" href="{{ route('admin.reports.sales') }}" aria-expanded="false">
+                        <span>
+                            <i class="ti ti-receipt"></i>
+                        </span>
+                        <span class="hide-menu">Laporan</span>
+                    </a>
+                </li>
+
+
+
+           <li class="sidebar-item">
+                    <a class="sidebar-link" href="/admin/orders" aria-dexpanded="false">
+                        <span>
+                            <i class="ti ti-receipt"></i>
+                        </span>
+                        <span class="hide-menu">Pesanan</span>
+                    </a>
+                </li>
             
             
             <li class="nav-small-cap">
