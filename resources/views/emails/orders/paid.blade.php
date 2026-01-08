@@ -1,26 +1,39 @@
 {{-- resources/views/emails/orders/paid.blade.php --}}
 
 <x-mail::message>
-# Halo, {{ $order->user->name }}
+# Pembayaran Dikonfirmasi
 
-Terima kasih! Pembayaran untuk pesanan **#{{ $order->order_number }}** telah kami terima.
-Kami sedang memproses pesanan Anda.
+Halo **{{ $order->user->name }}**,
 
+Kabar baik! Kami telah menerima pembayaran Anda untuk pesanan **#{{ $order->order_number }}**. Tim kami sekarang sedang menyiapkan produk Anda untuk segera dikirim.
+
+<x-mail::panel>
+**Status Pesanan:** Sedang Diproses  
+**Metode Pembayaran:** {{ $order->payment_method ?? 'Transfer Bank' }}
+</x-mail::panel>
+
+### Rincian Pesanan:
 <x-mail::table>
-| Produk | Qty | Harga |
-|:-------|:---:|:------|
+| Produk | Qty | Subtotal |
+|:-------|:---:|:---------|
 @foreach($order->items as $item)
-| {{ $item->product_name }} | {{ $item->quantity }} | Rp {{ number_format($item->price, 0, ',', '.') }} |
+| {{ $item->product_name }} | {{ $item->quantity }} | Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }} |
 @endforeach
-| **Total** | | **Rp {{ number_format($order->total_amount, 0, ',', '.') }}** |
+| **Total Bayar** | | **Rp {{ number_format($order->total_amount, 0, ',', '.') }}** |
 </x-mail::table>
 
-<x-mail::button :url="route('orders.show', $order)">
-Lihat Detail Pesanan
+<x-mail::button :url="route('orders.show', $order)" color="success">
+Pantau Status Pengiriman
 </x-mail::button>
 
-Jika ada pertanyaan, silakan balas email ini.
+### Alamat Pengiriman:
+> {{ $order->shipping_address }}
 
-Salam,<br>
-{{ config('app.name') }}
+**Apa selanjutnya?**
+Kami akan mengirimkan email notifikasi kembali beserta nomor resi segera setelah paket Anda diserahkan ke kurir.
+
+Terima kasih telah berbelanja di **{{ config('app.name') }}**.
+
+Salam hangat,<br>
+Tim {{ config('app.name') }}
 </x-mail::message>

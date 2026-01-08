@@ -1,129 +1,162 @@
-{{-- ================================================
-     FILE: resources/views/layouts/app.blade.php
-     FUNGSI: Master layout untuk halaman customer/publik
-     ================================================ --}}
-
+{{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    {{-- CSRF Token untuk AJAX --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- SEO Meta Tags --}}
     <title>@yield('title', 'Toko Online') - {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description', 'Toko online terpercaya dengan produk berkualitas')">
 
-    {{-- Favicon --}}
     <link rel="icon" href="{{ asset('favicon.ico') }}">
 
-    {{-- Google Fonts --}}
+    {{-- Fonts: Plus Jakarta Sans untuk tampilan modern --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- Vite CSS --}}
+    {{-- Bootstrap Icons --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    {{-- Vite CSS & JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Stack untuk CSS tambahan per halaman --}}
+    <style>
+        :root {
+            --navy-dark: #0f172a;
+            --slate-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--slate-light);
+            color: var(--navy-dark);
+            overflow-x: hidden;
+        }
+
+        .min-vh-100 { min-height: 100vh !important; }
+
+        /* Smooth scroll untuk link internal */
+        html { scroll-behavior: smooth; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Toast Notification Styling */
+        .toast-container { z-index: 1060; }
+    </style>
     @stack('styles')
 </head>
 <body>
-    {{-- ============================================
-         NAVBAR
-         ============================================ --}}
+    
+    {{-- Top Loading Bar (Hanya muncul saat transisi page jika memakai Turbo/Livewire) --}}
+    <div id="loading-bar" style="position:fixed; top:0; left:0; height:3px; background:#0f172a; width:0; z-index:9999; transition: width 0.3s ease;"></div>
+
+    {{-- NAVBAR --}}
     @include('partials.navbar')
 
-    {{-- ============================================
-         FLASH MESSAGES
-         ============================================ --}}
-    <div class="container mt-3">
-        @include('partials.flash-messages')
-    </div>
-
-    {{-- ============================================
-         MAIN CONTENT
-         ============================================ --}}
-    <main class="min-vh-100">
+    {{-- MAIN CONTENT --}}
+    <main class="min-vh-100 mt-2">
+        {{-- Flash Messages Container --}}
+        <div class="container mt-3">
+            @include('partials.flash-messages')
+        </div>
+        
         @yield('content')
     </main>
 
-    {{-- ============================================
-         FOOTER
-         ============================================ --}}
+    {{-- FOOTER --}}
     @include('partials.footer')
 
-    {{-- Stack untuk JS tambahan per halaman --}}
+    {{-- Toast Container untuk Notifikasi AJAX --}}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast align-items-center border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-message">
+                    {{-- Pesan otomatis muncul di sini --}}
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    {{-- JS Global --}}
     @stack('scripts')
 
     <script>
-  /**
-   * Fungsi AJAX untuk Toggle Wishlist
-   * Menggunakan Fetch API (Modern JS) daripada jQuery.
-   */
-  async function toggleWishlist(productId) {
-    try {
-      // 1. Ambil CSRF token dari meta tag HTML
-      // Laravale mewajibkan token ini untuk setiap request POST demi keamanan.
-      const token = document.querySelector('meta[name="csrf-token"]').content;
+        /**
+         * Fungsi Notifikasi Toast Sederhana
+         */
+        function showToast(message, type = 'success') {
+            const toastEl = document.getElementById('liveToast');
+            const toastMsg = document.getElementById('toast-message');
+            
+            // Set warna berdasarkan tipe
+            toastEl.className = `toast align-items-center text-white border-0 shadow-lg rounded-3 ${type === 'success' ? 'bg-dark' : 'bg-danger'}`;
+            toastMsg.innerText = message;
+            
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
 
-      // 2. Kirim Request ke Server
-      const response = await fetch(`/wishlist/toggle/${productId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": token, // Tempel token di header
-        },
-      });
+        /**
+         * AJAX Wishlist Toggle
+         */
+        async function toggleWishlist(productId) {
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+                const response = await fetch(`/wishlist/toggle/${productId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": token,
+                        "Accept": "application/json"
+                    },
+                });
 
-      // 3. Handle jika user belum login (Error 401 Unauthorized)
-      if (response.status === 401) {
-        window.location.href = "/login"; // Lempar ke halaman login
-        return;
-      }
+                if (response.status === 401) {
+                    window.location.href = "/login";
+                    return;
+                }
 
-      // 4. Baca respon JSON dari server
-      const data = await response.json();
+                const data = await response.json();
 
-      if (data.status === "success") {
-        // 5. Update UI tanpa reload halaman
-        updateWishlistUI(productId, data.added); // Ganti warna ikon
-        updateWishlistCounter(data.count); // Update angka di header
-        showToast(data.message); // Tampilkan notifikasi
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      showToast("Terjadi kesalahan sistem.", "error");
-    }
-  }
+                if (data.status === "success") {
+                    updateWishlistUI(productId, data.added);
+                    updateWishlistCounter(data.count);
+                    showToast(data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("Terjadi kesalahan sistem.", "error");
+            }
+        }
 
-  function updateWishlistUI(productId, isAdded) {
-    // Cari semua tombol wishlist untuk produk ini (bisa ada di card & detail page)
-    const buttons = document.querySelectorAll(`.wishlist-btn-${productId}`);
+        function updateWishlistUI(productId, isAdded) {
+            const buttons = document.querySelectorAll(`.wishlist-btn-${productId}`);
+            buttons.forEach((btn) => {
+                const icon = btn.querySelector("i");
+                if (isAdded) {
+                    icon.className = "bi bi-heart-fill text-danger";
+                    if(btn.innerText.trim() !== "") btn.innerHTML = '<i class="bi bi-heart-fill text-danger me-2"></i> Hapus dari Wishlist';
+                } else {
+                    icon.className = "bi bi-heart text-secondary";
+                    if(btn.innerText.trim() !== "") btn.innerHTML = '<i class="bi bi-heart me-2"></i> Tambah ke Wishlist';
+                }
+            });
+        }
 
-    buttons.forEach((btn) => {
-      const icon = btn.querySelector("i"); // Menggunakan tag <i> untuk Bootstrap Icons
-      if (isAdded) {
-        // Ubah jadi merah solid (Love penuh)
-        icon.classList.remove("bi-heart", "text-secondary");
-        icon.classList.add("bi-heart-fill", "text-danger");
-      } else {
-        // Ubah jadi abu-abu outline (Love kosong)
-        icon.classList.remove("bi-heart-fill", "text-danger");
-        icon.classList.add("bi-heart", "text-secondary");
-      }
-    });
-  }
-
-  function updateWishlistCounter(count) {
-    const badge = document.getElementById("wishlist-count");
-    if (badge) {
-      badge.innerText = count;
-      // Bootstrap badge display toggle logic
-      badge.style.display = count > 0 ? "inline-block" : "none";
-    }
-  }
-</script>
+        function updateWishlistCounter(count) {
+            const badge = document.getElementById("wishlist-count");
+            if (badge) {
+                badge.innerText = count;
+                badge.classList.toggle('d-none', count === 0);
+            }
+        }
+    </script>
 </body>
 </html>

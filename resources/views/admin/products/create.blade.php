@@ -1,4 +1,3 @@
-{{-- resources/views/admin/products/create.blade.php --}}
 @extends('layouts.admin')
 
 @section('title', 'Tambah Produk')
@@ -7,157 +6,190 @@
 <div class="row justify-content-center">
     <div class="col-lg-12">
 
-        {{-- Header --}}
+        {{-- Header Section --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h3 mb-0 fw-bold text-primary">
-                <i class="bi bi-box-seam me-1"></i> Tambah Produk Baru
-            </h2>
-            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Kembali
+            <div>
+                <h2 class="h3 mb-1 fw-bold" style="color: #0f172a;">
+                    <i class="bi bi-plus-circle me-2 text-slate-400"></i>Tambah Produk Baru
+                </h2>
+                <p class="text-muted small mb-0">Isi formulir di bawah ini untuk menambahkan koleksi produk baru ke toko Anda.</p>
+            </div>
+            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-dark rounded-3 px-4">
+                <i class="bi bi-arrow-left me-1"></i> Kembali
             </a>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
 
-                <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
+            <div class="row">
+                {{-- KOLOM KIRI: Konten Utama --}}
+                <div class="col-lg-8">
+                    {{-- 1. Informasi Produk --}}
+                    <div class="card shadow-sm border-0 mb-4 rounded-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-4 d-flex align-items-center" style="color: #334155;">
+                                <span class="bg-slate-100 p-2 rounded-2 me-2 d-inline-flex">
+                                    <i class="bi bi-info-circle" style="color: #0f172a;"></i>
+                                </span>
+                                Detil Produk
+                            </h6>
 
-                    {{-- ================= BASIC INFO ================= --}}
-                    <h6 class="fw-bold mb-3 text-muted">
-                        <i class="bi bi-info-circle me-1"></i> Informasi Produk
-                    </h6>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Nama Produk</label>
-                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                            value="{{ old('name') }}" required>
-                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Kategori</label>
-                        <select name="category_id" class="form-select @error('category_id') is-invalid @enderror"
-                            required>
-                            <option value="">Pilih Kategori...</option>
-                            @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id')==$category->id ? 'selected' : ''
-                                }}>
-                                {{ $category->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Deskripsi Produk</label>
-                        <textarea name="description" rows="4"
-                            class="form-control @error('description') is-invalid @enderror"
-                            placeholder="Deskripsi singkat produk...">{{ old('description') }}</textarea>
-                        @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    {{-- ================= PRICE & STOCK ================= --}}
-                    <h6 class="fw-bold mb-3 text-muted">
-                        <i class="bi bi-cash-stack me-1"></i> Harga & Stok
-                    </h6>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-semibold">Harga (Rp)</label>
-                            <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
-                                value="{{ old('price') }}" min="1000" required>
-                            @error('price') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-semibold">Harga Diskon (Opsional)</label>
-                            <input type="number" name="discount_price"
-                                class="form-control @error('discount_price') is-invalid @enderror"
-                                value="{{ old('discount_price') }}" min="0">
-                            @error('discount_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label fw-semibold">Stok</label>
-                            <input type="number" name="stock" class="form-control @error('stock') is-invalid @enderror"
-                                value="{{ old('stock') }}" min="0" required>
-                            @error('stock') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                    </div>
-
-                    <div class="mb-4 col-md-4">
-                        <label class="form-label fw-semibold">Berat (gram)</label>
-                        <input type="number" name="weight" class="form-control @error('weight') is-invalid @enderror"
-                            value="{{ old('weight') }}" min="1" required>
-                        @error('weight') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    {{-- ================= IMAGES ================= --}}
-                    <h6 class="fw-bold mb-3 text-muted">
-                        <i class="bi bi-images me-1"></i> Gambar Produk
-                    </h6>
-
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Upload Gambar</label>
-                        <input type="file" name="images[]" class="form-control @error('images') is-invalid @enderror"
-                            multiple>
-                        <small class="text-muted">
-                            Maksimal 10 gambar. JPG, PNG, WEBP. Maks 2MB per file.
-                        </small>
-                        @error('images') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        @error('images.*') <div class="text-danger small">{{ $message }}</div> @enderror
-                    </div>
-
-                    {{-- ================= STATUS ================= --}}
-                    <h6 class="fw-bold mb-3 text-muted">
-                        <i class="bi bi-toggle-on me-1"></i> Status Produk
-                    </h6>
-
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="is_active" value="1" {{
-                                    old('is_active', true) ? 'checked' : '' }}>
-                                <label class="form-check-label fw-semibold">Aktif</label>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-slate-600">NAMA PRODUK</label>
+                                <input type="text" name="name" class="form-control border-slate-200 shadow-none @error('name') is-invalid @enderror"
+                                    placeholder="Contoh: Kemeja Flanel Slim Fit" value="{{ old('name') }}" required>
+                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                        </div>
 
-                        <div class="col-md-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="is_featured" value="1" {{
-                                    old('is_featured') ? 'checked' : '' }}>
-                                <label class="form-check-label fw-semibold">Produk Unggulan</label>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-slate-600">KATEGORI</label>
+                                <select name="category_id" class="form-select border-slate-200 shadow-none @error('category_id') is-invalid @enderror" required>
+                                    <option value="">Pilih Kategori Produk...</option>
+                                    @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                @error('category_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-0">
+                                <label class="form-label fw-semibold small text-slate-600">DESKRIPSI LENGKAP</label>
+                                <textarea name="description" id="editor" rows="10"
+                                    class="form-control border-slate-200 shadow-none @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+                                @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
 
-                    {{-- SUBMIT --}}
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-save me-1"></i> Simpan Produk
+                    {{-- 2. Media/Gambar --}}
+                    <div class="card shadow-sm border-0 mb-4 rounded-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-4 d-flex align-items-center" style="color: #334155;">
+                                <span class="bg-slate-100 p-2 rounded-2 me-2 d-inline-flex">
+                                    <i class="bi bi-images" style="color: #0f172a;"></i>
+                                </span>
+                                Visual Produk
+                            </h6>
+
+                            <div class="upload-zone p-5 border-2 border-dashed rounded-3 text-center bg-light">
+                                <i class="bi bi-cloud-arrow-up fs-1 text-slate-400"></i>
+                                <label class="form-label d-block fw-semibold mt-2">Pilih Foto Produk</label>
+                                <input type="file" name="images[]" class="form-control shadow-none mt-3" multiple>
+                                <p class="text-muted small mt-3 mb-0">
+                                    Unggah hingga 10 gambar. Format: JPG, PNG, WEBP (Maks. 2MB/file).
+                                </p>
+                            </div>
+                            @error('images') <div class="text-danger small mt-2">{{ $message }}</div> @enderror
+                            @error('images.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- KOLOM KANAN: Inventaris & Aksi --}}
+                <div class="col-lg-4">
+                    {{-- 3. Inventaris & Harga --}}
+                    <div class="card shadow-sm border-0 mb-4 rounded-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-4 d-flex align-items-center" style="color: #334155;">
+                                <span class="bg-slate-100 p-2 rounded-2 me-2 d-inline-flex">
+                                    <i class="bi bi-tag" style="color: #0f172a;"></i>
+                                </span>
+                                Harga & Stok
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-slate-600">HARGA JUAL (RP)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-slate-200 bg-light fw-medium">Rp</span>
+                                    <input type="number" name="price" class="form-control border-slate-200 shadow-none @error('price') is-invalid @enderror"
+                                        value="{{ old('price') }}" placeholder="0" required>
+                                </div>
+                                @error('price') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-slate-600">HARGA DISKON (OPSIONAL)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-slate-200 bg-light text-muted">Rp</span>
+                                    <input type="number" name="discount_price" class="form-control border-slate-200 shadow-none @error('discount_price') is-invalid @enderror"
+                                        value="{{ old('discount_price') }}" placeholder="0">
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label fw-semibold small text-slate-600">JUMLAH STOK</label>
+                                    <input type="number" name="stock" class="form-control border-slate-200 shadow-none @error('stock') is-invalid @enderror"
+                                        value="{{ old('stock', 0) }}" required>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label fw-semibold small text-slate-600">BERAT (GR)</label>
+                                    <input type="number" name="weight" class="form-control border-slate-200 shadow-none @error('weight') is-invalid @enderror"
+                                        value="{{ old('weight', 100) }}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 4. Status Produk --}}
+                    <div class="card shadow-sm border-0 mb-4 rounded-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-4 d-flex align-items-center" style="color: #334155;">
+                                <span class="bg-slate-100 p-2 rounded-2 me-2 d-inline-flex">
+                                    <i class="bi bi-toggle-on" style="color: #0f172a;"></i>
+                                </span>
+                                Publikasi
+                            </h6>
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input shadow-none" type="checkbox" id="is_active" name="is_active" value="1" 
+                                    {{ old('is_active', true) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-medium text-slate-700" for="is_active">Aktifkan Sekarang</label>
+                            </div>
+
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input shadow-none" type="checkbox" id="is_featured" name="is_featured" value="1" 
+                                    {{ old('is_featured') ? 'checked' : '' }}>
+                                <label class="form-check-label fw-medium text-slate-700" for="is_featured">Set sebagai Unggulan</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Tombol Simpan --}}
+                    <div class="d-grid gap-2 mb-5">
+                        <button type="submit" class="btn btn-dark btn-lg rounded-3 border-0 py-3 shadow" style="background-color: #0f172a;">
+                            <i class="bi bi-check-lg me-2"></i>Simpan Produk Baru
                         </button>
+                        <p class="text-center text-muted small mt-2">Pastikan semua data sudah benar sebelum menyimpan.</p>
                     </div>
-
-                </form>
-
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
-@endsection
-@push('scripts')
-<!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/ctgoj8efdfr1i2jqusoi0hyy1luhjn7lk7r8rnmmhe2f6r35/tinymce/8/tinymce.min.js"
-    referrerpolicy="origin" crossorigin="anonymous"></script>
 
-<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<style>
+    .bg-slate-100 { background-color: #f1f5f9; }
+    .border-slate-200 { border-color: #e2e8f0; }
+    .text-slate-600 { color: #475569; }
+    .border-dashed { border-style: dashed !important; }
+    .form-switch .form-check-input:checked { background-color: #0f172a; border-color: #0f172a; }
+</style>
+@endsection
+
+@push('scripts')
+<script src="https://cdn.tiny.cloud/1/ctgoj8efdfr1i2jqusoi0hyy1luhjn7lk7r8rnmmhe2f6r35/tinymce/8/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     tinymce.init({
-    selector: 'textarea',
-    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-  });
+        selector: '#editor',
+        height: 350,
+        menubar: false,
+        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+        toolbar: 'undo redo | blocks | bold italic underline | link table | numlist bullist indent outdent | removeformat',
+        content_style: 'body { font-family:Inter,Helvetica,Arial,sans-serif; font-size:14px }'
+    });
 </script>
 @endpush
